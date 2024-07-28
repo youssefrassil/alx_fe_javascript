@@ -1,14 +1,36 @@
 document.addEventListener('DOMContentLoaded', () => {
   let quotes = loadQuotes();
+
+  const quoteDisplay = document.getElementById('quoteDisplay');
   const categoryFilter = document.getElementById('categoryFilter');
+
+  async function fetchQuotesFromServer() {
+    try {
+      const response = await fetch('http://localhost:3000/quotes');
+      const serverQuotes = await response.json();
+      return serverQuotes;
+    } catch (error) {
+      console.error('Error fetching quotes from server:', error);
+      return [];
+    }
+  }
+
+  async function syncQuotesWithServer() {
+    const serverQuotes = await fetchQuotesFromServer();
+
+    if (serverQuotes.length > 0) {
+      // Simple conflict resolution: server data takes precedence
+      quotes = serverQuotes;
+      saveQuotes();
+      populateCategories();
+      alert('Quotes synchronized with server!');
+      filterQuotes(); // Refresh the quotes display
+    }
+  }
 
   function loadQuotes() {
     const storedQuotes = localStorage.getItem('quotes');
-    return storedQuotes ? JSON.parse(storedQuotes) : [
-      { text: "The best way to predict the future is to invent it.", category: "Inspiration" },
-      { text: "Life is what happens when you're busy making other plans.", category: "Life" },
-      { text: "Do or do not. There is no try.", category: "Motivation" },
-    ];
+    return storedQuotes ? JSON.parse(storedQuotes) : [];
   }
 
   function saveQuotes() {
@@ -37,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function displayQuotes(quotesToDisplay) {
-    const quoteDisplay = document.getElementById('quoteDisplay');
     quoteDisplay.innerHTML = '';
 
     if (quotesToDisplay.length === 0) {
@@ -55,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function showRandomQuote() {
     const randomIndex = Math.floor(Math.random() * quotes.length);
     const quote = quotes[randomIndex];
-    document.getElementById('quoteDisplay').innerHTML = `<p>"${quote.text}" - ${quote.category}</p>`;
+    quoteDisplay.innerHTML = `<p>"${quote.text}" - ${quote.category}</p>`;
     sessionStorage.setItem('lastQuote', JSON.stringify(quote));
   }
 
@@ -66,7 +87,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const category = newQuoteCategory.value.trim();
 
     if (text && category) {
-      quotes.push({ text, category });
+      const newQuote = { id: Date.now(), text, category }; // Using timestamp as unique ID
+      quotes.push(newQuote);
       newQuoteText.value = '';
       newQuoteCategory.value = '';
       saveQuotes();
@@ -92,13 +114,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileReader = new FileReader();
     fileReader.onload = function(event) {
       const importedQuotes = JSON.parse(event.target.result);
-      quotes.push(...importedQuotes);
+      quotes = [...importedQuotes];
       saveQuotes();
       populateCategories();
       alert('Quotes imported successfully!');
       filterQuotes(); // Update filter after importing quotes
     };
     fileReader.readAsText(event.target.files[0]);
+  }
+
+  function notifyConflictResolution() {
+    alert('Data conflicts resolved with server data.');
   }
 
   const lastCategory = localStorage.getItem('lastCategory');
@@ -115,4 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('importFile').addEventListener('change', importFromJsonFile);
 
   populateCategories();
+
+  // Periodically sync quotes with server every 5 minutes (300000 ms)
+  setInterval(syncQuotesWithServer, 300000);
 });
