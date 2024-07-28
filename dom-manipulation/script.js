@@ -14,15 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function showRandomQuote() {
     const randomIndex = Math.floor(Math.random() * quotes.length);
     const quote = quotes[randomIndex];
-    
-    // Clear previous quote
-    while (quoteDisplay.firstChild) {
-      quoteDisplay.removeChild(quoteDisplay.firstChild);
-    }
-    
-    const quoteText = document.createElement('p');
-    quoteText.textContent = `"${quote.text}" - ${quote.category}`;
-    quoteDisplay.appendChild(quoteText);
+    quoteDisplay.innerHTML = `<p>"${quote.text}" - ${quote.category}</p>`;
   }
 
   function addQuote() {
