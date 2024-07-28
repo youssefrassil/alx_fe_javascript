@@ -34,6 +34,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  async function updateQuotesOnServer() {
+    try {
+      const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(quotes)
+      });
+      const result = await response.json();
+      console.log('Server response:', result);
+      alert('Quotes updated on the server!');
+    } catch (error) {
+      console.error('Error updating quotes on server:', error);
+    }
+  }
+
   function loadQuotes() {
     const storedQuotes = localStorage.getItem('quotes');
     return storedQuotes ? JSON.parse(storedQuotes) : [];
@@ -41,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function saveQuotes() {
     localStorage.setItem('quotes', JSON.stringify(quotes));
+    updateQuotesOnServer(); // Sync with server when saving locally
   }
 
   function populateCategories() {
