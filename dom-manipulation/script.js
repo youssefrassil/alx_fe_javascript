@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
       quotes = serverQuotes;
       saveQuotes();
       populateCategories();
-      alert('Quotes synchronized with server!');
+      showNotification('Quotes synced with server!'); // Notify user of successful sync
       filterQuotes(); // Refresh the quotes display
     }
   }
@@ -45,10 +45,27 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       const result = await response.json();
       console.log('Server response:', result);
-      alert('Quotes updated on the server!');
+      showNotification('Quotes updated on the server!'); // Notify user of successful update
     } catch (error) {
       console.error('Error updating quotes on server:', error);
     }
+  }
+
+  function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.textContent = message;
+    notification.style.position = 'fixed';
+    notification.style.bottom = '10px';
+    notification.style.right = '10px';
+    notification.style.backgroundColor = '#4CAF50'; // Green background for success
+    notification.style.color = 'white';
+    notification.style.padding = '10px';
+    notification.style.borderRadius = '5px';
+    notification.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
+    document.body.appendChild(notification);
+    setTimeout(() => {
+      document.body.removeChild(notification);
+    }, 3000); // Remove notification after 3 seconds
   }
 
   function loadQuotes() {
@@ -117,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
       newQuoteCategory.value = '';
       saveQuotes();
       populateCategories();
-      alert('Quote added successfully!');
+      showNotification('Quote added successfully!'); // Notify user of successful addition
       filterQuotes(); // Update filter after adding new quote
     } else {
       alert('Please enter both a quote and a category.');
@@ -141,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
       quotes = [...importedQuotes];
       saveQuotes();
       populateCategories();
-      alert('Quotes imported successfully!');
+      showNotification('Quotes imported successfully!'); // Notify user of successful import
       filterQuotes(); // Update filter after importing quotes
     };
     fileReader.readAsText(event.target.files[0]);
