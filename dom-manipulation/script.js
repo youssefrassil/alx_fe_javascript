@@ -1,14 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
   let quotes = loadQuotes();
-
   const quoteDisplay = document.getElementById('quoteDisplay');
   const categoryFilter = document.getElementById('categoryFilter');
 
+  // Simulate fetching quotes from a mock server
   async function fetchQuotesFromServer() {
     try {
-      const response = await fetch('http://localhost:3000/quotes');
+      const response = await fetch('https://jsonplaceholder.typicode.com/posts');
       const serverQuotes = await response.json();
-      return serverQuotes;
+
+      // Simulate quote structure with server data
+      return serverQuotes.map(post => ({
+        id: post.id,
+        text: post.title, // Using title as the quote text
+        category: 'General' // Static category for demonstration
+      }));
     } catch (error) {
       console.error('Error fetching quotes from server:', error);
       return [];
